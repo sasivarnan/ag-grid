@@ -313,6 +313,15 @@ export class Utils {
         }
     }
 
+    static formatNumberTwoDecimalPlacesAndCommas(value: number): string {
+        // took this from: http://blog.tompawlak.org/number-currency-formatting-javascript
+        if (typeof value === 'number') {
+            return (Math.round(value * 100) / 100).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+        } else {
+            return '';
+        }
+    }
+
     /**
      * Tries to use the provided renderer.
      */
@@ -440,7 +449,11 @@ export class Utils {
     }
 
     // taken from: http://stackoverflow.com/questions/1038727/how-to-get-browser-width-using-javascript-code
-    static getBrowserWidth(): number {
+    static getBodyWidth(): number {
+        if (document.body) {
+            return document.body.clientWidth;
+        }
+
         if (window.innerHeight) {
             return window.innerWidth;
         }
@@ -449,25 +462,21 @@ export class Utils {
             return document.documentElement.clientWidth;
         }
 
-        if (document.body) {
-            return document.body.clientWidth;
-        }
-
         return -1;
     }
 
     // taken from: http://stackoverflow.com/questions/1038727/how-to-get-browser-width-using-javascript-code
-    static getBrowserHeight(): number {
+    static getBodyHeight(): number {
+        if (document.body) {
+            return document.body.clientHeight;
+        }
+
         if (window.innerHeight) {
             return window.innerHeight;
         }
 
         if (document.documentElement && document.documentElement.clientHeight) {
             return document.documentElement.clientHeight;
-        }
-
-        if (document.body) {
-            return document.body.clientHeight;
         }
 
         return -1;
@@ -484,5 +493,22 @@ export class Utils {
         }
     }
 
+    static traverseNodesWithKey(nodes: RowNode[], callback: (node: RowNode, key: string)=>void): void {
+        var keyParts: any[] = [];
+
+        recursiveSearchNodes(nodes);
+
+        function recursiveSearchNodes(nodes: RowNode[]): void {
+            nodes.forEach( (node: RowNode) => {
+                if (node.group) {
+                    keyParts.push(node.key);
+                    var key = keyParts.join('|');
+                    callback(node, key);
+                    recursiveSearchNodes(node.children);
+                    keyParts.pop();
+                }
+            });
+        }
+    }
 }
 
